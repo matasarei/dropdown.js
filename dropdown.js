@@ -44,7 +44,7 @@ var DropdownMenu = function (selector, controls, params) {
         clearTimeout(ref.timeoutInstance);
         ref.timeoutInstance = setTimeout(function () {
             if (hover(ref.selector + ' [data-category=' + category + ']') || hover(ref.controls)) {
-                timeOut();
+                timeOut(category);
             } else {
                 ref.close();
             }
@@ -67,7 +67,7 @@ var DropdownMenu = function (selector, controls, params) {
         var category = $(ref.selector + ' [data-category=' + category + ']');
         var menu = $(ref.selector);
         var height = category.height();
-        
+
         if (category.css('display') === 'none') {
             category.fadeIn(this.animation);
         }
