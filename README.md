@@ -5,7 +5,7 @@ Requires: jQuery.
 
 ## Usage example
 
-###JS
+### JS
 ```js
 /**
  * @param string selector Dropdown menu selector
@@ -19,7 +19,7 @@ dropDown = new DropdownMenu('#dropdown_main', 'menu', {
     });
 ```
 
-###HTML
+### HTML
 ```html
 <div class="wrapper">
     <div class="content">
@@ -43,7 +43,7 @@ dropDown = new DropdownMenu('#dropdown_main', 'menu', {
 </div>
 ```
 
-###CSS
+### CSS
 ```css
 .dropdown {
     z-index: 999;
@@ -52,3 +52,6 @@ dropDown = new DropdownMenu('#dropdown_main', 'menu', {
     width: 100%;
 }
 ```
+
+## Live example
+http://salvefinance.com.ua/ (desktop)
