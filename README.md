@@ -12,10 +12,16 @@ Requires: jQuery.
  * @param string controls Controls container selector
  * @param obj params Additional params
  */
-dropDown = new DropdownMenu('#dropdown_main', 'menu', {
+var dropDown = new DropdownMenu('#dropdown_main', 'menu', {
         debug: true, //keep menu opened
         animation: 250, //0 to disable animations
-        timeout: 1500 //autoclose
+        timeout: 1500, //autoclose
+        onOpen: function(e) { //before open
+            console.log(e);
+        },
+        onClose: function(e) { //before close
+            console.log(e);
+        }
     });
 ```
 
