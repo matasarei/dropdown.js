@@ -1,4 +1,4 @@
-/* 
+/*
  * @author    Yevhen Matasar <matasar.ei@gmail.com>
  * @copyright C-Format, 2015
  */
@@ -33,6 +33,18 @@ var DropdownMenu = function (selector, controls, params) {
         this.animation = 250;
     }
 
+    if (typeof params.onOpen === 'function') {
+        this.onOpen = params.onOpen;
+    } else {
+        this.onOpen = function() {}
+    }
+
+    if (typeof params.onClose === 'function') {
+        this.onClose = params.onClose;
+    } else {
+        this.onClose = function() {}
+    }
+
     var hover = function (selector) {
         if ($(selector + ':hover').length > 0) {
             return true;
@@ -57,19 +69,41 @@ var DropdownMenu = function (selector, controls, params) {
      * @returns {undefined}
      */
     this.open = function (category) {
+        if (this.opened == category) {
+            return false;
+        }
+
+        //setup close timeout
+        !this.debug && timeOut(category);
+        var container = $(ref.selector + ' [data-category=' + category + ']');
+
+        //the container does not exist
+        if (!container.length) {
+            return false;
+        }
+
+        //hide oppened containers
         $(this.selector + ' [data-category]').each(function () {
             if ($(this).data('category') !== category) {
                 $(this).hide();
             }
         });
 
-        !this.debug && timeOut(category);
-        var category = $(ref.selector + ' [data-category=' + category + ']');
+        //open menu
         var menu = $(ref.selector);
-        var height = category.height();
 
-        if (category.css('display') === 'none') {
-            category.fadeIn(this.animation);
+        //triger event
+        this.onOpen({
+            'dropdown': this,
+            'category': category,
+            'container': container,
+            'controls': menu
+        });
+
+        //set styles and open
+        var height = container.height();
+        if (container.css('display') === 'none') {
+            container.fadeIn(this.animation);
         }
         if (menu.css('visibility') === 'hidden') {
             menu.css({
@@ -78,6 +112,7 @@ var DropdownMenu = function (selector, controls, params) {
             });
         }
         menu.animate({height: height}, this.animation);
+        this.opened = category;
     };
 
     /**
@@ -92,6 +127,14 @@ var DropdownMenu = function (selector, controls, params) {
         }, this.animation, function () {
             $(ref.selector + ' [data-category]').hide();
         });
+
+        //triger event
+        this.onClose({
+            'dropdown': this,
+            'controls': menu
+        });
+
+        this.opened = false;
     };
 
     //hide menu
