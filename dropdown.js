@@ -10,7 +10,7 @@
  * @returns {DropdownMenu} instance
  */
 var DropdownMenu = function (selector, controls, params) {
-    var ref = this;
+    var dropdown = this;
     this.selector = selector;
     this.controls = controls;
     this.timeoutInstance = null;
@@ -21,30 +21,35 @@ var DropdownMenu = function (selector, controls, params) {
         this.timeout = 1500;
     }
 
+    //debug mode
     if (params.debug) {
         this.debug = true;
     } else {
         this.debug = false;
     }
 
+    //amination speed
     if (params.animation !== undefined) {
         this.animation = params.animation;
     } else {
         this.animation = 250;
     }
 
+    //open event
     if (typeof params.onOpen === 'function') {
         this.onOpen = params.onOpen;
     } else {
         this.onOpen = function() {}
     }
 
+    //close event
     if (typeof params.onClose === 'function') {
         this.onClose = params.onClose;
     } else {
         this.onClose = function() {}
     }
 
+    //hover check
     var hover = function (selector) {
         if ($(selector + ':hover').length > 0) {
             return true;
@@ -52,15 +57,16 @@ var DropdownMenu = function (selector, controls, params) {
         return false;
     };
 
+    //close timeout
     var timeOut = function (category) {
-        clearTimeout(ref.timeoutInstance);
-        ref.timeoutInstance = setTimeout(function () {
-            if (hover(ref.selector + ' [data-category=' + category + ']') || hover(ref.controls)) {
+        clearTimeout(dropdown.timeoutInstance);
+        dropdown.timeoutInstance = setTimeout(function () {
+            if (hover(dropdown.selector + ' [data-category=' + category + ']') || hover(dropdown.controls + " a[data-category=" + dropdown.opened + "]")) {
                 timeOut(category);
             } else {
-                ref.close();
+                dropdown.close();
             }
-        }, ref.timeout);
+        }, dropdown.timeout);
     };
 
     /**
@@ -75,7 +81,7 @@ var DropdownMenu = function (selector, controls, params) {
 
         //setup close timeout
         !this.debug && timeOut(category);
-        var container = $(ref.selector + ' [data-category=' + category + ']');
+        var container = $(dropdown.selector + ' [data-category=' + category + ']');
 
         //the container does not exist
         if (!container.length) {
@@ -90,7 +96,7 @@ var DropdownMenu = function (selector, controls, params) {
         });
 
         //open menu
-        var menu = $(ref.selector);
+        var menu = $(dropdown.selector);
 
         //triger event
         this.onOpen({
@@ -111,7 +117,11 @@ var DropdownMenu = function (selector, controls, params) {
                 height: 0
             });
         }
-        menu.animate({height: height}, this.animation);
+        menu.animate({height: height}, this.animation, function() {
+            menu.removeClass('closed');
+            menu.addClass('opened');
+        });
+
         this.opened = category;
     };
 
@@ -120,12 +130,13 @@ var DropdownMenu = function (selector, controls, params) {
      * @returns {undefined}
      */
     this.close = function () {
-        var menu = $(ref.selector);
-        menu.animate({
-            height: 0,
-            visibility: 'hidden'
-        }, this.animation, function () {
-            $(ref.selector + ' [data-category]').hide();
+        dropdown.opened = false;
+
+        var menu = $(dropdown.selector);
+        menu.animate({ height: 0 }, this.animation, function () {
+            !dropdown.opened && menu.css('visibility', 'hidden');
+            menu.removeClass('opened');
+            menu.addClass('closed');
         });
 
         //triger event
@@ -133,8 +144,6 @@ var DropdownMenu = function (selector, controls, params) {
             'dropdown': this,
             'controls': menu
         });
-
-        this.opened = false;
     };
 
     //hide menu
@@ -144,7 +153,7 @@ var DropdownMenu = function (selector, controls, params) {
     $(this.controls + ' [data-category]').each(function () {
         var category = $(this).data('category');
         $(this).mouseenter(function () {
-            ref.open(category);
+            dropdown.open(category);
         });
     });
 };
