@@ -14,6 +14,9 @@ var DropdownMenu = function (selector, controls, params) {
     this.selector = selector;
     this.controls = controls;
     this.timeoutInstance = null;
+    this.timeoutStart = null;
+
+
 
     if (params.timeout) {
         this.timeout = params.timeout;
@@ -35,18 +38,27 @@ var DropdownMenu = function (selector, controls, params) {
         this.animation = 250;
     }
 
+    //start menu speed
+    if (params.startTime) {
+        this.startTime = params.startTime;
+    } else {
+        this.startTime = 0;
+    }
+
     //open event
     if (typeof params.onOpen === 'function') {
         this.onOpen = params.onOpen;
     } else {
-        this.onOpen = function() {}
+        this.onOpen = function () {
+        }
     }
 
     //close event
     if (typeof params.onClose === 'function') {
         this.onClose = params.onClose;
     } else {
-        this.onClose = function() {}
+        this.onClose = function () {
+        }
     }
 
     //hover check
@@ -103,11 +115,12 @@ var DropdownMenu = function (selector, controls, params) {
             'dropdown': this,
             'category': category,
             'container': container,
-            'controls': menu
+            'controls': menu,
+            'control': this.lastControl
         });
 
         //set styles and open
-        var height = container.height();
+        var height = container.outerHeight();
         if (container.css('display') === 'none') {
             container.fadeIn(this.animation);
         }
@@ -117,7 +130,7 @@ var DropdownMenu = function (selector, controls, params) {
                 height: 0
             });
         }
-        menu.animate({height: height}, this.animation, function() {
+        menu.animate({height: height}, this.animation, function () {
             menu.removeClass('closed');
             menu.addClass('opened');
         });
@@ -133,7 +146,7 @@ var DropdownMenu = function (selector, controls, params) {
         dropdown.opened = false;
 
         var menu = $(dropdown.selector);
-        menu.animate({ height: 0 }, this.animation, function () {
+        menu.animate({height: 0}, this.animation, function () {
             !dropdown.opened && menu.css('visibility', 'hidden');
             menu.removeClass('opened');
             menu.addClass('closed');
@@ -142,9 +155,12 @@ var DropdownMenu = function (selector, controls, params) {
         //triger event
         this.onClose({
             'dropdown': this,
-            'controls': menu
+            'controls': menu,
+            'control': this.lastControl
         });
     };
+
+    this.lastControl = null;
 
     //hide menu
     $(this.selector).css('visibility', 'hidden');
@@ -153,7 +169,17 @@ var DropdownMenu = function (selector, controls, params) {
     $(this.controls + ' [data-category]').each(function () {
         var category = $(this).data('category');
         $(this).mouseenter(function () {
-            dropdown.open(category);
+            dropdown.lastControl = this;
+            if (dropdown.startTime && !dropdown.opened) {
+                clearTimeout(dropdown.timeoutInstance);
+                dropdown.timeoutStart = setTimeout(function () {
+                    if ($('[data-category]:hover').length > 0) {
+                        dropdown.open(category);
+                    }
+                }, dropdown.startTime);
+            } else {
+                dropdown.open(category);
+            }
         });
     });
 };
