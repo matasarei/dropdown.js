@@ -61,3 +61,4 @@ var dropDown = new DropdownMenu('#dropdown_main', 'menu', {
 
 ## Live example
 http://salvefinance.com.ua/ (desktop)
+http://scott.ua/ (megamenu, desktop)
